@@ -1,0 +1,147 @@
+/* Estilo Global */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  padding: 20px;
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: 2.5em;
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 1.8em;
+  color: #2980b9;
+  margin-top: 40px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Formulário */
+label {
+  display: inline;
+  font-size: 1.1em;
+  color: #34495e;
+  margin-bottom: 10px;
+}
+
+select,
+input[type='text'] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #bdc3c7;
+  border-radius: 5px;
+  font-size: 1em;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+}
+
+input[type='text']::placeholder {
+  color: #95a5a6;
+}
+
+/* Botão Estilizado */
+button {
+  display: inline-block;
+  background-color: #2980b9;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.1em;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #3498db;
+}
+
+/* Resultados */
+#results {
+  margin-top: 40px;
+}
+
+.band-info {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  transition: transform 0.3s;
+}
+
+.band-info:hover {
+  transform: scale(1.02);
+}
+
+.band-info strong {
+  font-size: 1.2em;
+  color: #2c3e50;
+}
+
+.band-info p {
+  color: #7f8c8d;
+  margin: 10px 0;
+}
+
+/* Estilo Responsivo */
+@media (min-width: 768px) {
+  body {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 3em;
+  }
+
+  h2 {
+    font-size: 2em;
+  }
+
+  select,
+  input[type='text'] {
+    font-size: 1.1em;
+  }
+
+  button {
+    font-size: 1.2em;
+  }
+}
+
+/* Botão "Voltar ao Topo" */
+#backToTopBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background-color: #2980b9;
+  color: white;
+  font-size: 24px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+#backToTopBtn:hover {
+  background-color: #3498db;
+}

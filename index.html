@@ -4,214 +4,275 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Busca de Bandas - MusicBrainz API</title>
-    <style>
-      /* Estilo Global */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f4f4f9;
-        color: #333;
-        padding: 20px;
-        line-height: 1.6;
-      }
-
-      h1 {
-        font-size: 2.5em;
-        color: #2c3e50;
-        text-align: center;
-        margin-bottom: 20px;
-      }
-
-      h2 {
-        font-size: 1.8em;
-        color: #2980b9;
-        margin-top: 40px;
-        margin-bottom: 15px;
-        text-align: center;
-      }
-
-      /* Formulário */
-      label {
-        display: block;
-        font-size: 1.1em;
-        color: #34495e;
-        margin-bottom: 10px;
-      }
-
-      select,
-      input[type='text'] {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 20px;
-        border: 1px solid #bdc3c7;
-        border-radius: 5px;
-        font-size: 1em;
-        background-color: #ecf0f1;
-        color: #2c3e50;
-      }
-
-      input[type='text']::placeholder {
-        color: #95a5a6;
-      }
-
-      /* Botão Estilizado */
-      button {
-        display: inline-block;
-        background-color: #2980b9;
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1.1em;
-        margin-top: 10px;
-        transition: background-color 0.3s;
-      }
-
-      button:hover {
-        background-color: #3498db;
-      }
-
-      /* Resultados */
-      #results {
-        margin-top: 40px;
-      }
-
-      .band-info {
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-        transition: transform 0.3s;
-      }
-
-      .band-info:hover {
-        transform: scale(1.02);
-      }
-
-      .band-info strong {
-        font-size: 1.2em;
-        color: #2c3e50;
-      }
-
-      .band-info p {
-        color: #7f8c8d;
-        margin: 10px 0;
-      }
-
-      /* Estilo Responsivo */
-      @media (min-width: 768px) {
-        body {
-          max-width: 800px;
-          margin: 0 auto;
-        }
-
-        h1 {
-          font-size: 3em;
-        }
-
-        h2 {
-          font-size: 2em;
-        }
-
-        select,
-        input[type='text'] {
-          font-size: 1.1em;
-        }
-
-        button {
-          font-size: 1.2em;
-        }
-      }
-
-      /* Botão "Voltar ao Topo" */
-      #backToTopBtn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        background-color: #2980b9;
-        color: white;
-        font-size: 24px;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.3s;
-      }
-
-      #backToTopBtn:hover {
-        background-color: #3498db;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css">
+    
   </head>
   <body>
     <h1>Buscar Bandas por País, Gênero e Nome</h1>
 
-    <!-- Campo para busca por país e gênero -->
     <label for="country">Selecione o país:</label>
     <select id="country">
-      <!-- Lista de países com códigos ISO 3166-1 alpha-2 -->
       <option value="">--Selecione um país--</option>
-      <option value="BR">Brasil</option>
-      <option value="US">Estados Unidos</option>
-      <option value="GB">Inglaterra</option>
-      <option value="DE">Alemanha</option>
-      <option value="AU">Austrália</option>
-      <option value="CA">Canadá</option>
+      <option value="AD">Andorra</option>
+      <option value="AE">Emirados Árabes Unidos</option>
+      <option value="AF">Afeganistão</option>
+      <option value="AG">Antígua e Barbuda</option>
+      <option value="AI">Anguilla</option>
+      <option value="AL">Albânia</option>
+      <option value="AM">Armênia</option>
+      <option value="AO">Angola</option>
+      <option value="AQ">Antártida</option>
       <option value="AR">Argentina</option>
-      <option value="FR">França</option>
-      <option value="IT">Itália</option>
-      <option value="ES">Espanha</option>
-      <option value="JP">Japão</option>
-      <option value="MX">México</option>
-      <option value="RU">Rússia</option>
-      <option value="IN">Índia</option>
-      <option value="CN">China</option>
-      <option value="ZA">África do Sul</option>
-      <option value="PT">Portugal</option>
-      <option value="NL">Países Baixos</option>
-      <option value="SE">Suécia</option>
-      <option value="NO">Noruega</option>
-      <option value="FI">Finlândia</option>
-      <option value="CH">Suíça</option>
-      <option value="DK">Dinamarca</option>
-      <option value="KR">Coreia do Sul</option>
-      <option value="NZ">Nova Zelândia</option>
-      <option value="IE">Irlanda</option>
-      <option value="GR">Grécia</option>
-      <option value="PL">Polônia</option>
-      <option value="BE">Bélgica</option>
+      <option value="AS">Samoa Americana</option>
       <option value="AT">Áustria</option>
-      <option value="TR">Turquia</option>
-      <option value="IS">Islândia</option>
-      <option value="SG">Singapura</option>
+      <option value="AU">Austrália</option>
+      <option value="AW">Aruba</option>
+      <option value="AX">Ilhas Åland</option>
+      <option value="AZ">Azerbaijão</option>
+      <option value="BA">Bósnia e Herzegovina</option>
+      <option value="BB">Barbados</option>
+      <option value="BD">Bangladesh</option>
+      <option value="BE">Bélgica</option>
+      <option value="BF">Burkina Faso</option>
+      <option value="BG">Bulgária</option>
+      <option value="BH">Bahrein</option>
+      <option value="BI">Burundi</option>
+      <option value="BJ">Benin</option>
+      <option value="BL">São Bartolomeu</option>
+      <option value="BM">Bermudas</option>
+      <option value="BN">Brunei</option>
+      <option value="BO">Bolívia</option>
+      <option value="BQ">Caribe Neerlandês</option>
+      <option value="BR">Brasil</option>
+      <option value="BS">Bahamas</option>
+      <option value="BT">Butão</option>
+      <option value="BV">Ilha Bouvet</option>
+      <option value="BW">Botsuana</option>
+      <option value="BY">Bielorrússia</option>
+      <option value="BZ">Belize</option>
+      <option value="CA">Canadá</option>
+      <option value="CC">Ilhas Cocos (Keeling)</option>
+      <option value="CD">República Democrática do Congo</option>
+      <option value="CF">República Centro-Africana</option>
+      <option value="CG">Congo</option>
+      <option value="CH">Suíça</option>
+      <option value="CI">Costa do Marfim</option>
+      <option value="CK">Ilhas Cook</option>
+      <option value="CL">Chile</option>
+      <option value="CM">Camarões</option>
+      <option value="CN">China</option>
+      <option value="CO">Colômbia</option>
+      <option value="CR">Costa Rica</option>
+      <option value="CU">Cuba</option>
+      <option value="CV">Cabo Verde</option>
+      <option value="CW">Curaçao</option>
+      <option value="CX">Ilha Christmas</option>
+      <option value="CY">Chipre</option>
+      <option value="CZ">República Tcheca</option>
+      <option value="DE">Alemanha</option>
+      <option value="DJ">Djibuti</option>
+      <option value="DK">Dinamarca</option>
+      <option value="DM">Dominica</option>
+      <option value="DO">República Dominicana</option>
+      <option value="DZ">Argélia</option>
+      <option value="EC">Equador</option>
+      <option value="EE">Estônia</option>
+      <option value="EG">Egito</option>
+      <option value="EH">Saara Ocidental</option>
+      <option value="ER">Eritreia</option>
+      <option value="ES">Espanha</option>
+      <option value="ET">Etiópia</option>
+      <option value="FI">Finlândia</option>
+      <option value="FJ">Fiji</option>
+      <option value="FK">Ilhas Malvinas</option>
+      <option value="FM">Micronésia</option>
+      <option value="FO">Ilhas Faroe</option>
+      <option value="FR">França</option>
+      <option value="GA">Gabão</option>
+      <option value="GB">Reino Unido</option>
+      <option value="GD">Granada</option>
+      <option value="GE">Geórgia</option>
+      <option value="GF">Guiana Francesa</option>
+      <option value="GG">Guernsey</option>
+      <option value="GH">Gana</option>
+      <option value="GI">Gibraltar</option>
+      <option value="GL">Groenlândia</option>
+      <option value="GM">Gâmbia</option>
+      <option value="GN">Guiné</option>
+      <option value="GP">Guadalupe</option>
+      <option value="GQ">Guiné Equatorial</option>
+      <option value="GR">Grécia</option>
+      <option value="GS">Geórgia do Sul e Ilhas Sandwich do Sul</option>
+      <option value="GT">Guatemala</option>
+      <option value="GU">Guam</option>
+      <option value="GW">Guiné-Bissau</option>
+      <option value="GY">Guiana</option>
+      <option value="HK">Hong Kong</option>
+      <option value="HM">Ilhas Heard e McDonald</option>
+      <option value="HN">Honduras</option>
+      <option value="HR">Croácia</option>
+      <option value="HT">Haiti</option>
+      <option value="HU">Hungria</option>
+      <option value="ID">Indonésia</option>
+      <option value="IE">Irlanda</option>
       <option value="IL">Israel</option>
+      <option value="IM">Ilha de Man</option>
+      <option value="IN">Índia</option>
+      <option value="IO">Território Britânico do Oceano Índico</option>
+      <option value="IQ">Iraque</option>
+      <option value="IR">Irã</option>
+      <option value="IS">Islândia</option>
+      <option value="IT">Itália</option>
+      <option value="JE">Jersey</option>
+      <option value="JM">Jamaica</option>
+      <option value="JO">Jordânia</option>
+      <option value="JP">Japão</option>
+      <option value="KE">Quênia</option>
+      <option value="KG">Quirguistão</option>
+      <option value="KH">Camboja</option>
+      <option value="KI">Quiribati</option>
+      <option value="KM">Comores</option>
+      <option value="KN">São Cristóvão e Nevis</option>
+      <option value="KP">Coreia do Norte</option>
+      <option value="KR">Coreia do Sul</option>
+      <option value="KW">Kuwait</option>
+      <option value="KY">Ilhas Cayman</option>
+      <option value="KZ">Cazaquistão</option>
+      <option value="LA">Laos</option>
+      <option value="LB">Líbano</option>
+      <option value="LC">Santa Lúcia</option>
+      <option value="LI">Liechtenstein</option>
+      <option value="LK">Sri Lanka</option>
+      <option value="LR">Libéria</option>
+      <option value="LS">Lesoto</option>
+      <option value="LT">Lituânia</option>
+      <option value="LU">Luxemburgo</option>
+      <option value="LV">Letônia</option>
+      <option value="LY">Líbia</option>
+      <option value="MA">Marrocos</option>
+      <option value="MC">Mônaco</option>
+      <option value="MD">Moldávia</option>
+      <option value="ME">Montenegro</option>
+      <option value="MF">São Martinho</option>
+      <option value="MG">Madagáscar</option>
+      <option value="MH">Ilhas Marshall</option>
+      <option value="MK">Macedônia do Norte</option>
+      <option value="ML">Mali</option>
+      <option value="MM">Mianmar</option>
+      <option value="MN">Mongólia</option>
+      <option value="MO">Macau</option>
+      <option value="MP">Ilhas Marianas do Norte</option>
+      <option value="MQ">Martinica</option>
+      <option value="MR">Mauritânia</option>
+      <option value="MS">Montserrat</option>
+      <option value="MT">Malta</option>
+      <option value="MU">Maurícia</option>
+      <option value="MV">Maldivas</option>
+      <option value="MW">Malawi</option>
+      <option value="MX">México</option>
+      <option value="MY">Malásia</option>
+      <option value="MZ">Moçambique</option>
+      <option value="NA">Namíbia</option>
+      <option value="NC">Nova Caledônia</option>
+      <option value="NE">Níger</option>
+      <option value="NF">Ilha Norfolk</option>
+      <option value="NG">Nigéria</option>
+      <option value="NI">Nicarágua</option>
+      <option value="NL">Países Baixos</option>
+      <option value="NO">Noruega</option>
+      <option value="NP">Nepal</option>
+      <option value="NR">Nauru</option>
+      <option value="NU">Niue</option>
+      <option value="NZ">Nova Zelândia</option>
+      <option value="OM">Omã</option>
+      <option value="PA">Panamá</option>
+      <option value="PE">Peru</option>
+      <option value="PF">Polinésia Francesa</option>
+      <option value="PG">Papua-Nova Guiné</option>
+      <option value="PH">Filipinas</option>
+      <option value="PK">Paquistão</option>
+      <option value="PL">Polônia</option>
+      <option value="PM">São Pedro e Miquelão</option>
+      <option value="PN">Ilhas Pitcairn</option>
+      <option value="PR">Porto Rico</option>
+      <option value="PS">Palestina</option>
+      <option value="PT">Portugal</option>
+      <option value="PW">Palau</option>
+      <option value="PY">Paraguai</option>
+      <option value="QA">Catar</option>
+      <option value="RE">Reunião</option>
+      <option value="RO">Romênia</option>
+      <option value="RS">Sérvia</option>
+      <option value="RU">Rússia</option>
+      <option value="RW">Ruanda</option>
+      <option value="SA">Arábia Saudita</option>
+      <option value="SB">Ilhas Salomão</option>
+      <option value="SC">Seicheles</option>
+      <option value="SD">Sudão</option>
+      <option value="SE">Suécia</option>
+      <option value="SG">Singapura</option>
+      <option value="SH">Santa Helena, Ascensão e Tristão da Cunha</option>
+      <option value="SI">Eslovênia</option>
+      <option value="SJ">Svalbard e Jan Mayen</option>
+      <option value="SK">Eslováquia</option>
+      <option value="SL">Serra Leoa</option>
+      <option value="SM">San Marino</option>
+      <option value="SN">Senegal</option>
+      <option value="SO">Somália</option>
+      <option value="SR">Suriname</option>
+      <option value="SS">Sudão do Sul</option>
+      <option value="ST">São Tomé e Príncipe</option>
+      <option value="SV">El Salvador</option>
+      <option value="SX">Sint Maarten</option>
+      <option value="SY">Síria</option>
+      <option value="SZ">Eswatini</option>
+      <option value="TC">Ilhas Turks e Caicos</option>
+      <option value="TD">Chade</option>
+      <option value="TF">Territórios Franceses do Sul</option>
+      <option value="TG">Togo</option>
+      <option value="TH">Tailândia</option>
+      <option value="TJ">Tadjiquistão</option>
+      <option value="TK">Tokelau</option>
+      <option value="TL">Timor-Leste</option>
+      <option value="TM">Turcomenistão</option>
+      <option value="TN">Tunísia</option>
+      <option value="TO">Tonga</option>
+      <option value="TR">Turquia</option>
+      <option value="TT">Trinidad e Tobago</option>
+      <option value="TV">Tuvalu</option>
+      <option value="TW">Taiwan</option>
+      <option value="TZ">Tanzânia</option>
+      <option value="UA">Ucrânia</option>
+      <option value="UG">Uganda</option>
+      <option value="UM">Ilhas Menores Distantes dos EUA</option>
+      <option value="US">Estados Unidos</option>
+      <option value="UY">Uruguai</option>
+      <option value="UZ">Uzbequistão</option>
+      <option value="VA">Vaticano</option>
+      <option value="VC">São Vicente e Granadinas</option>
+      <option value="VE">Venezuela</option>
+      <option value="VG">Ilhas Virgens Britânicas</option>
+      <option value="VI">Ilhas Virgens dos EUA</option>
+      <option value="VN">Vietnã</option>
+      <option value="VU">Vanuatu</option>
+      <option value="WF">Wallis e Futuna</option>
+      <option value="WS">Samoa</option>
+      <option value="YE">Iêmen</option>
+      <option value="YT">Mayotte</option>
+      <option value="ZA">África do Sul</option>
+      <option value="ZM">Zâmbia</option>
+      <option value="ZW">Zimbábue</option>
     </select>
 
     <div class="radio-group">
-      <label
-        ><input type="radio" name="genre" value="rock" checked /> Rock</label
-      >
+      <label><input type="radio" name="genre" value="rock" checked /> Rock</label>
       <label><input type="radio" name="genre" value="indie" /> Indie</label>
       <label><input type="radio" name="genre" value="punk" /> Punk</label>
-      <label
-        ><input type="radio" name="genre" value="post-punk" /> Post-punk</label
-      >
+      <label><input type="radio" name="genre" value="post-punk" /> Post-punk</label>
     </div>
 
     <button onclick="searchBands()">Buscar Bandas</button>
 
-    <!-- Campo para busca por nome da banda -->
     <h2>Ou buscar por nome da banda:</h2>
     <label for="bandName">Digite o nome da banda:</label>
     <input type="text" id="bandName" placeholder="Nome da banda" />
@@ -219,179 +280,8 @@
 
     <div id="results"></div>
 
-    <!-- Botão "Voltar ao Topo" -->
     <button id="backToTopBtn" onclick="scrollToTop()">&#x25B2;</button>
 
-    <script>
-      // Função para buscar bandas por país e gênero musical
-      function searchBands() {
-        const country = document.getElementById('country').value;
-        const genre = document.querySelector(
-          'input[name="genre"]:checked'
-        ).value;
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
-
-        if (country === '') {
-          resultsDiv.innerHTML = '<p>Por favor, selecione um país.</p>';
-          return;
-        }
-
-        const url = `https://musicbrainz.org/ws/2/artist/?query=country:${country} AND tag:${genre}&fmt=json`;
-
-        fetch(url)
-          .then((response) => response.json())
-          .then((data) => {
-            const artists = data.artists;
-            if (artists.length > 0) {
-              resultsDiv.innerHTML = '<h2>Bandas encontradas:</h2>';
-              artists.forEach((artist) => {
-                const bandDiv = document.createElement('div');
-                bandDiv.classList.add('band-info');
-                bandDiv.innerHTML = `<strong>${artist.name}</strong>`;
-                resultsDiv.appendChild(bandDiv);
-              });
-            } else {
-              resultsDiv.innerHTML = `<p>Nenhuma banda de ${genre} encontrada para o país selecionado.</p>`;
-            }
-            // Rolar para a seção de resultados
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
-          })
-          .catch((error) => {
-            resultsDiv.innerHTML =
-              '<p>Ocorreu um erro ao buscar as bandas.</p>';
-            console.error('Erro:', error);
-          });
-      }
-
-      // Função para buscar informações detalhadas sobre uma banda pelo nome
-      function searchBand() {
-        const bandName = document.getElementById('bandName').value.trim();
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
-
-        if (bandName === '') {
-          resultsDiv.innerHTML =
-            '<p>Por favor, insira o nome de uma banda.</p>';
-          return;
-        }
-
-        const url = `https://musicbrainz.org/ws/2/artist/?query=artist:${encodeURIComponent(
-          bandName
-        )}&fmt=json`;
-
-        fetch(url)
-          .then((response) => response.json())
-          .then((data) => {
-            const artist = data.artists[0]; // Pegando apenas o primeiro resultado
-            if (artist) {
-              const country = formatCountry(artist.country);
-              resultsDiv.innerHTML = '<h2>Informações encontradas:</h2>';
-
-              const bandDiv = document.createElement('div');
-              bandDiv.classList.add('band-info');
-
-              const bandDetails = `
-                            <strong>Nome:</strong> ${artist.name} <br>
-                            <strong>País de Origem:</strong> ${
-                              country || 'N/A'
-                            } <br>
-                            <strong>Data de Início:</strong> ${formatDate(
-                              artist['life-span'].begin
-                            )} <br>
-                            <strong>Data de Fim:</strong> ${formatDate(
-                              artist['life-span'].end
-                            )} <br>
-                            <strong>Tags:</strong> ${
-                              artist.tags
-                                ? artist.tags.map((tag) => tag.name).join(', ')
-                                : 'Nenhuma'
-                            }
-                        `;
-
-              bandDiv.innerHTML = bandDetails;
-              resultsDiv.appendChild(bandDiv);
-            } else {
-              resultsDiv.innerHTML =
-                '<p>Nenhuma banda encontrada com esse nome.</p>';
-            }
-            // Rolar para a seção de resultados
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
-          })
-          .catch((error) => {
-            resultsDiv.innerHTML =
-              '<p>Ocorreu um erro ao buscar as informações da banda.</p>';
-            console.error('Erro:', error);
-          });
-      }
-
-      // Função para formatar a data no formato brasileiro (dia/mês/ano)
-      function formatDate(dateString) {
-        if (!dateString) return 'N/A'; // Se a data for indefinida
-        const [year, month, day] = dateString.split('-');
-        return `${day ? day.padStart(2, '0') : '??'}/${
-          month ? month.padStart(2, '0') : '??'
-        }/${year}`;
-      }
-
-      // Função para formatar o país com nomes em português
-      function formatCountry(countryCode) {
-        const countryNames = {
-          BR: 'Brasil',
-          US: 'Estados Unidos',
-          GB: 'Inglaterra',
-          DE: 'Alemanha',
-          AU: 'Austrália',
-          CA: 'Canadá',
-          AR: 'Argentina',
-          FR: 'França',
-          IT: 'Itália',
-          ES: 'Espanha',
-          JP: 'Japão',
-          MX: 'México',
-          RU: 'Rússia',
-          IN: 'Índia',
-          CN: 'China',
-          ZA: 'África do Sul',
-          PT: 'Portugal',
-          NL: 'Países Baixos',
-          SE: 'Suécia',
-          NO: 'Noruega',
-          FI: 'Finlândia',
-          CH: 'Suíça',
-          DK: 'Dinamarca',
-          KR: 'Coreia do Sul',
-          NZ: 'Nova Zelândia',
-          IE: 'Irlanda',
-          GR: 'Grécia',
-          PL: 'Polônia',
-          BE: 'Bélgica',
-          AT: 'Áustria',
-          TR: 'Turquia',
-          IS: 'Islândia',
-          SG: 'Singapura',
-          IL: 'Israel',
-        };
-        return countryNames[countryCode] || countryCode;
-      }
-
-      // Mostrar ou esconder o botão "Voltar ao Topo" com base na rolagem
-      window.onscroll = function () {
-        const backToTopBtn = document.getElementById('backToTopBtn');
-        if (
-          document.body.scrollTop > 300 ||
-          document.documentElement.scrollTop > 300
-        ) {
-          backToTopBtn.style.display = 'flex';
-        } else {
-          backToTopBtn.style.display = 'none';
-        }
-      };
-
-      // Função para rolar suavemente até o topo
-      function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    </script>
+    <script src="script.js"></script>
   </body>
 </html>
