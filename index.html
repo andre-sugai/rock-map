@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Busca de Bandas - MusicBrainz API</title>
+    <style>
+      /* Estilo Global */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f4f4f9;
+        color: #333;
+        padding: 20px;
+        line-height: 1.6;
+      }
+
+      h1 {
+        font-size: 2.5em;
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        font-size: 1.8em;
+        color: #2980b9;
+        margin-top: 40px;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      /* Formulário */
+      label {
+        display: block;
+        font-size: 1.1em;
+        color: #34495e;
+        margin-bottom: 10px;
+      }
+
+      select,
+      input[type='text'] {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #bdc3c7;
+        border-radius: 5px;
+        font-size: 1em;
+        background-color: #ecf0f1;
+        color: #2c3e50;
+      }
+
+      input[type='text']::placeholder {
+        color: #95a5a6;
+      }
+
+      /* Botão Estilizado */
+      button {
+        display: inline-block;
+        background-color: #2980b9;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1.1em;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #3498db;
+      }
+
+      /* Estilo para Radio Buttons */
+      .radio-group {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+      }
+
+      .radio-group input[type='radio'] {
+        margin-right: 5px;
+      }
+
+      .radio-group label {
+        font-size: 1.1em;
+        color: #34495e;
+      }
+
+      /* Resultados */
+      #results {
+        margin-top: 40px;
+      }
+
+      .band-info {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+      }
+
+      .band-info:hover {
+        transform: scale(1.02);
+      }
+
+      .band-info strong {
+        font-size: 1.2em;
+        color: #2c3e50;
+      }
+
+      .band-info p {
+        color: #7f8c8d;
+        margin: 10px 0;
+      }
+
+      /* Estilo Responsivo */
+      @media (min-width: 768px) {
+        body {
+          max-width: 800px;
+          margin: 0 auto;
+        }
+
+        h1 {
+          font-size: 3em;
+        }
+
+        h2 {
+          font-size: 2em;
+        }
+
+        select,
+        input[type='text'] {
+          font-size: 1.1em;
+        }
+
+        button {
+          font-size: 1.2em;
+        }
+      }
+
+      /* Botão "Voltar ao Topo" */
+      #backToTopBtn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #2980b9;
+        color: white;
+        font-size: 24px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+      }
+
+      #backToTopBtn:hover {
+        background-color: #3498db;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Buscar Bandas por País, Gênero e Nome</h1>
+
+    <!-- Campo para busca por país e gênero -->
+    <label for="country">Selecione o país:</label>
+    <select id="country">
+      <!-- Lista de países com códigos ISO 3166-1 alpha-2 -->
+      <option value="">--Selecione um país--</option>
+      <option value="BR">Brasil</option>
+      <option value="US">Estados Unidos</option>
+      <option value="GB">Reino Unido</option>
+      <option value="DE">Alemanha</option>
+      <option value="AU">Austrália</option>
+      <option value="CA">Canadá</option>
+      <option value="AR">Argentina</option>
+      <option value="FR">França</option>
+      <option value="IT">Itália</option>
+      <option value="ES">Espanha</option>
+      <option value="JP">Japão</option>
+      <option value="MX">México</option>
+      <option value="RU">Rússia</option>
+      <option value="IN">Índia</option>
+      <option value="CN">China</option>
+      <option value="ZA">África do Sul</option>
+      <option value="PT">Portugal</option>
+      <option value="NL">Países Baixos</option>
+      <option value="SE">Suécia</option>
+      <option value="NO">Noruega</option>
+      <option value="FI">Finlândia</option>
+      <option value="CH">Suíça</option>
+      <option value="DK">Dinamarca</option>
+      <option value="KR">Coreia do Sul</option>
+      <option value="NZ">Nova Zelândia</option>
+      <option value="IE">Irlanda</option>
+      <option value="GR">Grécia</option>
+      <option value="PL">Polônia</option>
+      <option value="BE">Bélgica</option>
+      <option value="AT">Áustria</option>
+      <option value="TR">Turquia</option>
+      <option value="IS">Islândia</option>
+      <option value="SG">Singapura</option>
+      <option value="IL">Israel</option>
+    </select>
+
+    <div class="radio-group">
+      <label
+        ><input type="radio" name="genre" value="rock" checked /> Rock</label
+      >
+      <label><input type="radio" name="genre" value="indie" /> Indie</label>
+      <label><input type="radio" name="genre" value="punk" /> Punk</label>
+    </div>
+
+    <button onclick="searchBands()">Buscar Bandas</button>
+
+    <!-- Campo para busca por nome da banda -->
+    <h2>Ou buscar por nome da banda:</h2>
+    <label for="bandName">Digite o nome da banda:</label>
+    <input type="text" id="bandName" placeholder="Nome da banda" />
+    <button onclick="searchBand()">Buscar Informações</button>
+
+    <div id="results"></div>
+
+    <!-- Botão "Voltar ao Topo" -->
+    <button id="backToTopBtn" onclick="scrollToTop()">&#x25B2;</button>
+
+    <script>
+      // Função para buscar bandas por país e gênero musical
+      function searchBands() {
+        const country = document.getElementById('country').value;
+        const genre = document.querySelector(
+          'input[name="genre"]:checked'
+        ).value;
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
+
+        if (country === '') {
+          resultsDiv.innerHTML = '<p>Por favor, selecione um país.</p>';
+          return;
+        }
+
+        const url = `https://musicbrainz.org/ws/2/artist/?query=country:${country} AND tag:${genre}&fmt=json`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const artists = data.artists;
+            if (artists.length > 0) {
+              resultsDiv.innerHTML = '<h2>Bandas encontradas:</h2>';
+              artists.forEach((artist) => {
+                const bandDiv = document.createElement('div');
+                bandDiv.classList.add('band-info');
+                bandDiv.innerHTML = `<strong>${artist.name}</strong>`;
+                resultsDiv.appendChild(bandDiv);
+              });
+            } else {
+              resultsDiv.innerHTML = `<p>Nenhuma banda de ${genre} encontrada para o país selecionado.</p>`;
+            }
+            // Rolar para a seção de resultados
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch((error) => {
+            resultsDiv.innerHTML =
+              '<p>Ocorreu um erro ao buscar as bandas.</p>';
+            console.error('Erro:', error);
+          });
+      }
+
+      // Função para buscar informações detalhadas sobre uma banda pelo nome
+      function searchBand() {
+        const bandName = document.getElementById('bandName').value.trim();
+        const resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
+
+        if (bandName === '') {
+          resultsDiv.innerHTML =
+            '<p>Por favor, insira o nome de uma banda.</p>';
+          return;
+        }
+
+        const url = `https://musicbrainz.org/ws/2/artist/?query=artist:${encodeURIComponent(
+          bandName
+        )}&fmt=json`;
+
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            const artists = data.artists;
+            if (artists.length > 0) {
+              resultsDiv.innerHTML = '<h2>Informações encontradas:</h2>';
+              artists.forEach((artist) => {
+                const bandDiv = document.createElement('div');
+                bandDiv.classList.add('band-info');
+
+                const bandDetails = `
+                                <strong>Nome:</strong> ${artist.name} <br>
+                                <strong>País de Origem:</strong> ${
+                                  artist.country || 'N/A'
+                                } <br>
+                                <strong>Data de Início:</strong> ${formatDate(
+                                  artist['life-span'].begin
+                                )} <br>
+                                <strong>Data de Fim:</strong> ${formatDate(
+                                  artist['life-span'].end
+                                )} <br>
+                                <strong>Tags:</strong> ${
+                                  artist.tags
+                                    ? artist.tags
+                                        .map((tag) => tag.name)
+                                        .join(', ')
+                                    : 'Nenhuma'
+                                }
+                            `;
+
+                bandDiv.innerHTML = bandDetails;
+                resultsDiv.appendChild(bandDiv);
+              });
+            } else {
+              resultsDiv.innerHTML =
+                '<p>Nenhuma banda encontrada com esse nome.</p>';
+            }
+            // Rolar para a seção de resultados
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch((error) => {
+            resultsDiv.innerHTML =
+              '<p>Ocorreu um erro ao buscar as informações da banda.</p>';
+            console.error('Erro:', error);
+          });
+      }
+
+      // Função para formatar a data no formato brasileiro (dia/mês/ano)
+      function formatDate(dateString) {
+        if (!dateString) return 'N/A'; // Se a data for indefinida
+        const [year, month, day] = dateString.split('-');
+        return `${day ? day.padStart(2, '0') : '??'}/${
+          month ? month.padStart(2, '0') : '??'
+        }/${year}`;
+      }
+
+      // Mostrar ou esconder o botão "Voltar ao Topo" com base na rolagem
+      window.onscroll = function () {
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        if (
+          document.body.scrollTop > 300 ||
+          document.documentElement.scrollTop > 300
+        ) {
+          backToTopBtn.style.display = 'flex';
+        } else {
+          backToTopBtn.style.display = 'none';
+        }
+      };
+
+      // Função para rolar suavemente até o topo
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    </script>
+  </body>
+</html>
