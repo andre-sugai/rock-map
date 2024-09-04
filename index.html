@@ -77,22 +77,6 @@
         background-color: #3498db;
       }
 
-      /* Estilo para Radio Buttons */
-      .radio-group {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
-      }
-
-      .radio-group input[type='radio'] {
-        margin-right: 5px;
-      }
-
-      .radio-group label {
-        font-size: 1.1em;
-        color: #34495e;
-      }
-
       /* Resultados */
       #results {
         margin-top: 40px;
@@ -296,36 +280,33 @@
         fetch(url)
           .then((response) => response.json())
           .then((data) => {
-            const artists = data.artists;
-            if (artists.length > 0) {
+            const artist = data.artists[0]; // Pegando apenas o primeiro resultado
+            if (artist) {
               resultsDiv.innerHTML = '<h2>Informações encontradas:</h2>';
-              artists.forEach((artist) => {
-                const bandDiv = document.createElement('div');
-                bandDiv.classList.add('band-info');
 
-                const bandDetails = `
-                                <strong>Nome:</strong> ${artist.name} <br>
-                                <strong>País de Origem:</strong> ${
-                                  artist.country || 'N/A'
-                                } <br>
-                                <strong>Data de Início:</strong> ${formatDate(
-                                  artist['life-span'].begin
-                                )} <br>
-                                <strong>Data de Fim:</strong> ${formatDate(
-                                  artist['life-span'].end
-                                )} <br>
-                                <strong>Tags:</strong> ${
-                                  artist.tags
-                                    ? artist.tags
-                                        .map((tag) => tag.name)
-                                        .join(', ')
-                                    : 'Nenhuma'
-                                }
-                            `;
+              const bandDiv = document.createElement('div');
+              bandDiv.classList.add('band-info');
 
-                bandDiv.innerHTML = bandDetails;
-                resultsDiv.appendChild(bandDiv);
-              });
+              const bandDetails = `
+                            <strong>Nome:</strong> ${artist.name} <br>
+                            <strong>País de Origem:</strong> ${
+                              artist.country || 'N/A'
+                            } <br>
+                            <strong>Data de Início:</strong> ${formatDate(
+                              artist['life-span'].begin
+                            )} <br>
+                            <strong>Data de Fim:</strong> ${formatDate(
+                              artist['life-span'].end
+                            )} <br>
+                            <strong>Tags:</strong> ${
+                              artist.tags
+                                ? artist.tags.map((tag) => tag.name).join(', ')
+                                : 'Nenhuma'
+                            }
+                        `;
+
+              bandDiv.innerHTML = bandDetails;
+              resultsDiv.appendChild(bandDiv);
             } else {
               resultsDiv.innerHTML =
                 '<p>Nenhuma banda encontrada com esse nome.</p>';
