@@ -37,7 +37,7 @@ function searchBands() {
 }
 
 // Função para buscar informações detalhadas sobre uma banda pelo nome
-function searchBand() {
+async function searchBand() {
   const bandName = document.getElementById('bandName').value.trim();
   const resultsDiv = document.getElementById('results');
   resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
@@ -49,59 +49,89 @@ function searchBand() {
 
   const musicBrainzUrl = `https://musicbrainz.org/ws/2/artist/?query=artist:${encodeURIComponent(bandName)}&fmt=json`;
 
-  fetch(musicBrainzUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      const artist = data.artists[0]; // Pegando apenas o primeiro resultado
-      if (artist) {
-        const country = formatCountry(artist.country);
-        resultsDiv.innerHTML = '<h2>Informações encontradas:</h2>';
+  try {
+    const response = await fetch(musicBrainzUrl);
+    const data = await response.json();
+    const artist = data.artists[0]; // Pegando apenas o primeiro resultado
 
-        const bandDiv = document.createElement('div');
-        bandDiv.classList.add('band-info');
+    if (artist) {
+      const country = formatCountry(artist.country);
+      resultsDiv.innerHTML = '<h2>Informações encontradas:</h2>';
 
-        // Chamada para a API do Discogs
-        const discogsUrl = `https://api.discogs.com/database/search?q=${encodeURIComponent(artist.name)}&type=artist&token=IWKHJBLNOoQRqpFuSWcZFYfxCCDdDeNIMiktspOZ`;
+      const bandDiv = document.createElement('div');
+      bandDiv.classList.add('band-info');
 
-        fetch(discogsUrl)
-          .then((response) => response.json())
-          .then((discogsData) => {
-            let profile = 'Perfil não disponível';
-            if (discogsData.results && discogsData.results.length > 0) {
-              const artistId = discogsData.results[0].id;
-              return fetch(`https://api.discogs.com/artists/${artistId}`);
-            }
-            return Promise.reject('Artista não encontrado no Discogs');
-          })
-          .then((response) => response.json())
-          .then((artistData) => {
-            profile = artistData.profile || 'Perfil não disponível';
-          })
-          .catch((error) => {
-            console.error('Erro ao buscar perfil no Discogs:', error);
-          })
-          .finally(() => {
-            const bandDetails = `
-              <strong>Nome:</strong> ${artist.name} <br>
-              <strong>País de Origem:</strong> ${country || 'N/A'} <br>
-              <strong>Data de Início:</strong> ${formatDate(artist['life-span'].begin)} <br>
-              <strong>Data de Fim:</strong> ${formatDate(artist['life-span'].end)} <br>
-              <strong>Perfil:</strong> ${profile} <br>
-              <strong>Tags:</strong> ${artist.tags ? artist.tags.map((tag) => tag.name).join(', ') : 'Nenhuma'}
-            `;
+      // Chamada para a API do Discogs
+      const discogsUrl = `https://api.discogs.com/database/search?q=${encodeURIComponent(artist.name)}&type=artist&token=IWKHJBLNOoQRqpFuSWcZFYfxCCDdDeNIMiktspOZ`;
 
-            bandDiv.innerHTML = bandDetails;
-            resultsDiv.appendChild(bandDiv);
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
-          });
-      } else {
-        resultsDiv.innerHTML = '<p>Nenhuma banda encontrada com esse nome.</p>';
+      try {
+        const discogsResponse = await fetch(discogsUrl);
+        const discogsData = await discogsResponse.json();
+        let profile = 'Perfil não disponível';
+
+        if (discogsData.results && discogsData.results.length > 0) {
+          const artistId = discogsData.results[0].id;
+          const artistResponse = await fetch(`https://api.discogs.com/artists/${artistId}`);
+          const artistData = await artistResponse.json();
+          profile = artistData.profile || 'Perfil não disponível';
+        }
+
+        const translatedProfile = await translateText(profile);
+
+        const bandDetails = `
+          <strong>Nome:</strong> ${artist.name} <br>
+          <strong>País de Origem:</strong> ${country || 'N/A'} <br>
+          <strong>Data de Início:</strong> ${formatDate(artist['life-span'].begin)} <br>
+          <strong>Data de Fim:</strong> ${formatDate(artist['life-span'].end)} <br>
+          <strong>Perfil:</strong> ${translatedProfile} <br>
+          <strong>Tags:</strong> ${artist.tags ? artist.tags.map((tag) => tag.name).join(', ') : 'Nenhuma'}
+        `;
+
+        bandDiv.innerHTML = bandDetails;
+        resultsDiv.appendChild(bandDiv);
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+        console.error('Erro ao buscar ou traduzir o perfil:', error);
+        const bandDetails = `
+          <strong>Nome:</strong> ${artist.name} <br>
+          <strong>País de Origem:</strong> ${country || 'N/A'} <br>
+          <strong>Data de Início:</strong> ${formatDate(artist['life-span'].begin)} <br>
+          <strong>Data de Fim:</strong> ${formatDate(artist['life-span'].end)} <br>
+          <strong>Perfil:</strong> Não foi possível obter ou traduzir o perfil <br>
+          <strong>Tags:</strong> ${artist.tags ? artist.tags.map((tag) => tag.name).join(', ') : 'Nenhuma'}
+        `;
+        bandDiv.innerHTML = bandDetails;
+        resultsDiv.appendChild(bandDiv);
+        resultsDiv.scrollIntoView({ behavior: 'smooth' });
       }
-    })
-    .catch((error) => {
-      resultsDiv.innerHTML = '<p>Ocorreu um erro ao buscar as informações da banda.</p>';
-      console.error('Erro:', error);
-    });
+    } else {
+      resultsDiv.innerHTML = '<p>Nenhuma banda encontrada com esse nome.</p>';
+    }
+  } catch (error) {
+    resultsDiv.innerHTML = '<p>Ocorreu um erro ao buscar as informações da banda.</p>';
+    console.error('Erro:', error);
+  }
+}
+
+// Função para traduzir o texto usando MyMemory API
+async function translateText(text) {
+  const apiKey = 'guitarfreaks@gmail.com'; // Use seu e-mail como chave de API
+  const encodedText = encodeURIComponent(text);
+  const url = `https://api.mymemory.translated.net/get?q=${encodedText}&langpair=en|pt-BR&de=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.responseStatus === 200 && data.responseData.translatedText) {
+      return data.responseData.translatedText;
+    } else {
+      throw new Error('Falha na tradução');
+    }
+  } catch (error) {
+    console.error('Erro na tradução:', error);
+    return text; // Retorna o texto original se houver erro na tradução
+  }
 }
 
 // Função para formatar a data no formato brasileiro (dia/mês/ano)
@@ -114,10 +144,255 @@ function formatDate(dateString) {
 // Função para formatar o país com nomes em português
 function formatCountry(countryCode) {
   const countryNames = {
+    AD: 'Andorra',
+    AE: 'Emirados Árabes Unidos',
+    AF: 'Afeganistão',
+    AG: 'Antígua e Barbuda',
+    AI: 'Anguilla',
+    AL: 'Albânia',
+    AM: 'Armênia',
+    AO: 'Angola',
+    AQ: 'Antártida',
+    AR: 'Argentina',
+    AS: 'Samoa Americana',
+    AT: 'Áustria',
+    AU: 'Austrália',
+    AW: 'Aruba',
+    AX: 'Ilhas Åland',
+    AZ: 'Azerbaijão',
+    BA: 'Bósnia e Herzegovina',
+    BB: 'Barbados',
+    BD: 'Bangladesh',
+    BE: 'Bélgica',
+    BF: 'Burkina Faso',
+    BG: 'Bulgária',
+    BH: 'Bahrein',
+    BI: 'Burundi',
+    BJ: 'Benin',
+    BL: 'São Bartolomeu',
+    BM: 'Bermudas',
+    BN: 'Brunei',
+    BO: 'Bolívia',
+    BQ: 'Caribe Neerlandês',
     BR: 'Brasil',
+    BS: 'Bahamas',
+    BT: 'Butão',
+    BV: 'Ilha Bouvet',
+    BW: 'Botsuana',
+    BY: 'Bielorrússia',
+    BZ: 'Belize',
+    CA: 'Canadá',
+    CC: 'Ilhas Cocos (Keeling)',
+    CD: 'República Democrática do Congo',
+    CF: 'República Centro-Africana',
+    CG: 'Congo',
+    CH: 'Suíça',
+    CI: 'Costa do Marfim',
+    CK: 'Ilhas Cook',
+    CL: 'Chile',
+    CM: 'Camarões',
+    CN: 'China',
+    CO: 'Colômbia',
+    CR: 'Costa Rica',
+    CU: 'Cuba',
+    CV: 'Cabo Verde',
+    CW: 'Curaçao',
+    CX: 'Ilha Christmas',
+    CY: 'Chipre',
+    CZ: 'República Tcheca',
+    DE: 'Alemanha',
+    DJ: 'Djibuti',
+    DK: 'Dinamarca',
+    DM: 'Dominica',
+    DO: 'República Dominicana',
+    DZ: 'Argélia',
+    EC: 'Equador',
+    EE: 'Estônia',
+    EG: 'Egito',
+    EH: 'Saara Ocidental',
+    ER: 'Eritreia',
+    ES: 'Espanha',
+    ET: 'Etiópia',
+    FI: 'Finlândia',
+    FJ: 'Fiji',
+    FK: 'Ilhas Malvinas',
+    FM: 'Micronésia',
+    FO: 'Ilhas Faroe',
+    FR: 'França',
+    GA: 'Gabão',
+    GB: 'Reino Unido',
+    GD: 'Granada',
+    GE: 'Geórgia',
+    GF: 'Guiana Francesa',
+    GG: 'Guernsey',
+    GH: 'Gana',
+    GI: 'Gibraltar',
+    GL: 'Groenlândia',
+    GM: 'Gâmbia',
+    GN: 'Guiné',
+    GP: 'Guadalupe',
+    GQ: 'Guiné Equatorial',
+    GR: 'Grécia',
+    GS: 'Geórgia do Sul e Ilhas Sandwich do Sul',
+    GT: 'Guatemala',
+    GU: 'Guam',
+    GW: 'Guiné-Bissau',
+    GY: 'Guiana',
+    HK: 'Hong Kong',
+    HM: 'Ilhas Heard e McDonald',
+    HN: 'Honduras',
+    HR: 'Croácia',
+    HT: 'Haiti',
+    HU: 'Hungria',
+    ID: 'Indonésia',
+    IE: 'Irlanda',
+    IL: 'Israel',
+    IM: 'Ilha de Man',
+    IN: 'Índia',
+    IO: 'Território Britânico do Oceano Índico',
+    IQ: 'Iraque',
+    IR: 'Irã',
+    IS: 'Islândia',
+    IT: 'Itália',
+    JE: 'Jersey',
+    JM: 'Jamaica',
+    JO: 'Jordânia',
+    JP: 'Japão',
+    KE: 'Quênia',
+    KG: 'Quirguistão',
+    KH: 'Camboja',
+    KI: 'Quiribati',
+    KM: 'Comores',
+    KN: 'São Cristóvão e Nevis',
+    KP: 'Coreia do Norte',
+    KR: 'Coreia do Sul',
+    KW: 'Kuwait',
+    KY: 'Ilhas Cayman',
+    KZ: 'Cazaquistão',
+    LA: 'Laos',
+    LB: 'Líbano',
+    LC: 'Santa Lúcia',
+    LI: 'Liechtenstein',
+    LK: 'Sri Lanka',
+    LR: 'Libéria',
+    LS: 'Lesoto',
+    LT: 'Lituânia',
+    LU: 'Luxemburgo',
+    LV: 'Letônia',
+    LY: 'Líbia',
+    MA: 'Marrocos',
+    MC: 'Mônaco',
+    MD: 'Moldávia',
+    ME: 'Montenegro',
+    MF: 'São Martinho',
+    MG: 'Madagáscar',
+    MH: 'Ilhas Marshall',
+    MK: 'Macedônia do Norte',
+    ML: 'Mali',
+    MM: 'Mianmar',
+    MN: 'Mongólia',
+    MO: 'Macau',
+    MP: 'Ilhas Marianas do Norte',
+    MQ: 'Martinica',
+    MR: 'Mauritânia',
+    MS: 'Montserrat',
+    MT: 'Malta',
+    MU: 'Maurícia',
+    MV: 'Maldivas',
+    MW: 'Malawi',
+    MX: 'México',
+    MY: 'Malásia',
+    MZ: 'Moçambique',
+    NA: 'Namíbia',
+    NC: 'Nova Caledônia',
+    NE: 'Níger',
+    NF: 'Ilha Norfolk',
+    NG: 'Nigéria',
+    NI: 'Nicarágua',
+    NL: 'Países Baixos',
+    NO: 'Noruega',
+    NP: 'Nepal',
+    NR: 'Nauru',
+    NU: 'Niue',
+    NZ: 'Nova Zelândia',
+    OM: 'Omã',
+    PA: 'Panamá',
+    PE: 'Peru',
+    PF: 'Polinésia Francesa',
+    PG: 'Papua-Nova Guiné',
+    PH: 'Filipinas',
+    PK: 'Paquistão',
+    PL: 'Polônia',
+    PM: 'São Pedro e Miquelão',
+    PN: 'Ilhas Pitcairn',
+    PR: 'Porto Rico',
+    PS: 'Palestina',
+    PT: 'Portugal',
+    PW: 'Palau',
+    PY: 'Paraguai',
+    QA: 'Catar',
+    RE: 'Reunião',
+    RO: 'Romênia',
+    RS: 'Sérvia',
+    RU: 'Rússia',
+    RW: 'Ruanda',
+    SA: 'Arábia Saudita',
+    SB: 'Ilhas Salomão',
+    SC: 'Seicheles',
+    SD: 'Sudão',
+    SE: 'Suécia',
+    SG: 'Singapura',
+    SH: 'Santa Helena, Ascensão e Tristão da Cunha',
+    SI: 'Eslovênia',
+    SJ: 'Svalbard e Jan Mayen',
+    SK: 'Eslováquia',
+    SL: 'Serra Leoa',
+    SM: 'San Marino',
+    SN: 'Senegal',
+    SO: 'Somália',
+    SR: 'Suriname',
+    SS: 'Sudão do Sul',
+    ST: 'São Tomé e Príncipe',
+    SV: 'El Salvador',
+    SX: 'Sint Maarten',
+    SY: 'Síria',
+    SZ: 'Eswatini',
+    TC: 'Ilhas Turks e Caicos',
+    TD: 'Chade',
+    TF: 'Territórios Franceses do Sul',
+    TG: 'Togo',
+    TH: 'Tailândia',
+    TJ: 'Tadjiquistão',
+    TK: 'Tokelau',
+    TL: 'Timor-Leste',
+    TM: 'Turcomenistão',
+    TN: 'Tunísia',
+    TO: 'Tonga',
+    TR: 'Turquia',
+    TT: 'Trinidad e Tobago',
+    TV: 'Tuvalu',
+    TW: 'Taiwan',
+    TZ: 'Tanzânia',
+    UA: 'Ucrânia',
+    UG: 'Uganda',
+    UM: 'Ilhas Menores Distantes dos EUA',
     US: 'Estados Unidos',
-    GB: 'Inglaterra',
-    // Adicione os outros países aqui
+    UY: 'Uruguai',
+    UZ: 'Uzbequistão',
+    VA: 'Vaticano',
+    VC: 'São Vicente e Granadinas',
+    VE: 'Venezuela',
+    VG: 'Ilhas Virgens Britânicas',
+    VI: 'Ilhas Virgens dos EUA',
+    VN: 'Vietnã',
+    VU: 'Vanuatu',
+    WF: 'Wallis e Futuna',
+    WS: 'Samoa',
+    YE: 'Iêmen',
+    YT: 'Mayotte',
+    ZA: 'África do Sul',
+    ZM: 'Zâmbia',
+    ZW: 'Zimbábue'
   };
   return countryNames[countryCode] || countryCode;
 }
