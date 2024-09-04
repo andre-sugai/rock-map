@@ -164,7 +164,7 @@
       <option value="">--Selecione um país--</option>
       <option value="BR">Brasil</option>
       <option value="US">Estados Unidos</option>
-      <option value="GB">Reino Unido</option>
+      <option value="GB">Inglaterra</option>
       <option value="DE">Alemanha</option>
       <option value="AU">Austrália</option>
       <option value="CA">Canadá</option>
@@ -204,6 +204,9 @@
       >
       <label><input type="radio" name="genre" value="indie" /> Indie</label>
       <label><input type="radio" name="genre" value="punk" /> Punk</label>
+      <label
+        ><input type="radio" name="genre" value="post-punk" /> Post-punk</label
+      >
     </div>
 
     <button onclick="searchBands()">Buscar Bandas</button>
@@ -282,6 +285,7 @@
           .then((data) => {
             const artist = data.artists[0]; // Pegando apenas o primeiro resultado
             if (artist) {
+              const country = formatCountry(artist.country);
               resultsDiv.innerHTML = '<h2>Informações encontradas:</h2>';
 
               const bandDiv = document.createElement('div');
@@ -290,7 +294,7 @@
               const bandDetails = `
                             <strong>Nome:</strong> ${artist.name} <br>
                             <strong>País de Origem:</strong> ${
-                              artist.country || 'N/A'
+                              country || 'N/A'
                             } <br>
                             <strong>Data de Início:</strong> ${formatDate(
                               artist['life-span'].begin
@@ -328,6 +332,47 @@
         return `${day ? day.padStart(2, '0') : '??'}/${
           month ? month.padStart(2, '0') : '??'
         }/${year}`;
+      }
+
+      // Função para formatar o país com nomes em português
+      function formatCountry(countryCode) {
+        const countryNames = {
+          BR: 'Brasil',
+          US: 'Estados Unidos',
+          GB: 'Inglaterra',
+          DE: 'Alemanha',
+          AU: 'Austrália',
+          CA: 'Canadá',
+          AR: 'Argentina',
+          FR: 'França',
+          IT: 'Itália',
+          ES: 'Espanha',
+          JP: 'Japão',
+          MX: 'México',
+          RU: 'Rússia',
+          IN: 'Índia',
+          CN: 'China',
+          ZA: 'África do Sul',
+          PT: 'Portugal',
+          NL: 'Países Baixos',
+          SE: 'Suécia',
+          NO: 'Noruega',
+          FI: 'Finlândia',
+          CH: 'Suíça',
+          DK: 'Dinamarca',
+          KR: 'Coreia do Sul',
+          NZ: 'Nova Zelândia',
+          IE: 'Irlanda',
+          GR: 'Grécia',
+          PL: 'Polônia',
+          BE: 'Bélgica',
+          AT: 'Áustria',
+          TR: 'Turquia',
+          IS: 'Islândia',
+          SG: 'Singapura',
+          IL: 'Israel',
+        };
+        return countryNames[countryCode] || countryCode;
       }
 
       // Mostrar ou esconder o botão "Voltar ao Topo" com base na rolagem
