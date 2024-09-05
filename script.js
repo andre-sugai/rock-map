@@ -535,3 +535,28 @@ function formatProfile(profile) {
   // Envolve o perfil formatado em uma span com estilos
   return `<span style="white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.6;">${formattedProfile}</span>`;
 }
+
+// Função para tornar o accordion funcional
+document.addEventListener('DOMContentLoaded', function() {
+    const accordionHeaders = document.querySelectorAll('.accordion-header');
+    
+    accordionHeaders.forEach(header => {
+        header.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const content = this.nextElementSibling;
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+            
+            // Fechar outros itens do accordion
+            accordionHeaders.forEach(otherHeader => {
+                if (otherHeader !== this) {
+                    otherHeader.classList.remove('active');
+                    otherHeader.nextElementSibling.style.maxHeight = null;
+                }
+            });
+        });
+    });
+});
