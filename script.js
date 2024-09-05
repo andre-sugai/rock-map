@@ -38,7 +38,8 @@ function searchBands() {
 
 // Função para buscar informações detalhadas sobre uma banda pelo nome
 async function searchBand() {
-  const bandName = document.getElementById('bandName').value.trim();
+  const bandNameInput = document.getElementById('bandName');
+  const bandName = bandNameInput.value.trim();
   const resultsDiv = document.getElementById('results');
   resultsDiv.innerHTML = ''; // Limpa os resultados anteriores
 
@@ -46,6 +47,9 @@ async function searchBand() {
     resultsDiv.innerHTML = '<p>Por favor, insira o nome de uma banda.</p>';
     return;
   }
+
+  // Limpa o campo de busca
+  bandNameInput.value = '';
 
   const musicBrainzUrl = `https://musicbrainz.org/ws/2/artist/?query=artist:${encodeURIComponent(bandName)}&fmt=json`;
 
@@ -65,25 +69,54 @@ async function searchBand() {
       const discogsUrl = `https://api.discogs.com/database/search?q=${encodeURIComponent(artist.name)}&type=artist&token=IWKHJBLNOoQRqpFuSWcZFYfxCCDdDeNIMiktspOZ`;
 
       try {
+        console.log('Buscando informações no Discogs...');
         const discogsResponse = await fetch(discogsUrl);
         const discogsData = await discogsResponse.json();
         let profile = 'Perfil não disponível';
+        let urls = [];
 
         if (discogsData.results && discogsData.results.length > 0) {
           const artistId = discogsData.results[0].id;
+          console.log(`ID do artista no Discogs: ${artistId}`);
           const artistResponse = await fetch(`https://api.discogs.com/artists/${artistId}`);
           const artistData = await artistResponse.json();
           profile = artistData.profile || 'Perfil não disponível';
+          urls = artistData.urls || [];
+          console.log('Perfil original:', profile);
+          console.log('URLs de contato:', urls);
+
+          // Substituir códigos de artista por nomes
+          console.log('Substituindo códigos de artista...');
+          profile = await replaceArtistCodes(profile);
+          console.log('Perfil após substituição de códigos de artista:', profile);
+
+          // Substituir códigos de álbum por nomes
+          console.log('Substituindo códigos de álbum...');
+          profile = await replaceAlbumCodes(profile);
+          console.log('Perfil após substituição de códigos de álbum:', profile);
         }
 
+        // Remove os colchetes e [a=, mantém o conteúdo dentro (incluindo "Artista" de [a=Artista]), exceto URLs
+        profile = profile.replace(/\[a=|\[url=.*?\].*?\[\/url\]|\[|\]/g, '').trim();
+        console.log('Perfil após remoção de colchetes:', profile);
+
+        // Converter entidades HTML para seus caracteres correspondentes
+        profile = decodeHTMLEntities(profile);
+
+        console.log('Traduzindo perfil...');
         const translatedProfile = await translateText(profile);
+        console.log('Perfil traduzido:', translatedProfile);
+
+        // Formatar as URLs de contato
+        const formattedUrls = urls.map(url => `<a href="${url}" target="_blank">${url}</a>`).join('<br>');
 
         const bandDetails = `
           <strong>Nome:</strong> ${artist.name} <br>
           <strong>País de Origem:</strong> ${country || 'N/A'} <br>
           <strong>Data de Início:</strong> ${formatDate(artist['life-span'].begin)} <br>
           <strong>Data de Fim:</strong> ${formatDate(artist['life-span'].end)} <br>
-          <strong>Perfil:</strong> ${translatedProfile} <br>
+          <strong>Perfil:</strong>&nbsp;${formatProfile(translatedProfile)} <br>
+          <strong>URLs de Contato:</strong><br>${formattedUrls || 'Nenhuma URL disponível'} <br>
           <strong>Tags:</strong> ${artist.tags ? artist.tags.map((tag) => tag.name).join(', ') : 'Nenhuma'}
         `;
 
@@ -111,6 +144,73 @@ async function searchBand() {
     resultsDiv.innerHTML = '<p>Ocorreu um erro ao buscar as informações da banda.</p>';
     console.error('Erro:', error);
   }
+}
+
+// Função para substituir códigos de artista por nomes
+async function replaceArtistCodes(text) {
+  const regex = /a\d+/g;
+  const codes = text.match(regex) || [];
+  console.log('Códigos de artista encontrados:', codes);
+  
+  for (const code of codes) {
+    try {
+      console.log(`Buscando informações para o código ${code}...`);
+      const response = await fetch(`https://api.discogs.com/artists/${code.substring(1)}`, {
+        headers: {
+          'User-Agent': 'YourAppName/1.0',
+          'Authorization': 'Discogs token=IWKHJBLNOoQRqpFuSWcZFYfxCCDdDeNIMiktspOZ'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.name) {
+        console.log(`Nome do artista para o código ${code}: ${data.name}`);
+        text = text.replace(new RegExp(code, 'g'), data.name);
+      } else {
+        console.log(`Nenhum nome encontrado para o código ${code}`);
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar informações para o código ${code}:`, error);
+    }
+  }
+  
+  return text;
+}
+
+// Função para substituir códigos de álbum por nomes
+async function replaceAlbumCodes(text) {
+  const regex = /m=(\d+)/g;
+  const codes = text.match(regex) || [];
+  console.log('Códigos de álbum encontrados:', codes);
+  
+  for (const code of codes) {
+    try {
+      const albumId = code.split('=')[1];
+      console.log(`Buscando informações para o álbum ${albumId}...`);
+      const response = await fetch(`https://api.discogs.com/masters/${albumId}`, {
+        headers: {
+          'User-Agent': 'YourAppName/1.0',
+          'Authorization': 'Discogs token=SEU_TOKEN_AQUI'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.title) {
+        console.log(`Nome do álbum para o código ${code}: ${data.title}`);
+        text = text.replace(new RegExp(code, 'g'), data.title);
+      } else {
+        console.log(`Nenhum nome encontrado para o código ${code}`);
+      }
+    } catch (error) {
+      console.error(`Erro ao buscar informações para o código ${code}:`, error);
+    }
+  }
+  
+  return text;
 }
 
 // Função para traduzir o texto usando MyMemory API
@@ -220,7 +320,7 @@ function formatCountry(countryCode) {
     FO: 'Ilhas Faroe',
     FR: 'França',
     GA: 'Gabão',
-    GB: 'Reino Unido',
+    GB: 'Inglaterra',
     GD: 'Granada',
     GE: 'Geórgia',
     GF: 'Guiana Francesa',
@@ -394,7 +494,15 @@ function formatCountry(countryCode) {
     ZM: 'Zâmbia',
     ZW: 'Zimbábue'
   };
-  return countryNames[countryCode] || countryCode;
+  
+  let countryName = countryNames[countryCode] || countryCode;
+  
+  // Substituir "Reino Unido" por "Inglaterra"
+  if (countryName === 'Reino Unido') {
+    countryName = 'Inglaterra';
+  }
+  
+  return countryName;
 }
 
 // Mostrar ou esconder o botão "Voltar ao Topo" com base na rolagem
@@ -410,4 +518,20 @@ window.onscroll = function () {
 // Função para rolar suavemente até o topo
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Função para decodificar entidades HTML
+function decodeHTMLEntities(text) {
+  const textArea = document.createElement('textarea');
+  textArea.innerHTML = text;
+  return textArea.value;
+}
+
+// Função para formatar o perfil, preservando quebras de linha e adicionando estilos
+function formatProfile(profile) {
+  // Substitui quebras de linha por <br> para preservar a formatação
+  const formattedProfile = profile.replace(/\n/g, '<br>');
+  
+  // Envolve o perfil formatado em uma span com estilos
+  return `<span style="white-space: pre-wrap; font-family: Arial, sans-serif; line-height: 1.6;">${formattedProfile}</span>`;
 }
